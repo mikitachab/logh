@@ -1,7 +1,6 @@
 import re
 
-
-WORKTIME_RE = r'([\d]+[hm]){1,2}'
+from constants import WORKTIME_RE
 
 
 def validate_worktime(worktime):

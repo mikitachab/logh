@@ -3,8 +3,7 @@ import datetime
 import sqlite3
 import os
 
-
-DB_SQLITE_FILENAME = 'worktime.db'
+from constants import DB_SQLITE_FILENAME
 
 
 @contextlib.contextmanager

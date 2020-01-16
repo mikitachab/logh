@@ -2,10 +2,10 @@
 import argparse
 import datetime
 import sys
-import re
 
 import db
 import printer
+import utils
 
 __version__ = '0.1.0'
 
@@ -36,51 +36,59 @@ def argparse_parser_setup():
     return parser
 
 
-def calc_time_sum(worktimes):
-    def parse_time(timestr, units):
-        """units 'h' or 'm'"""
-        match = re.search(r'(\d+){}'.format(units), timestr)
-        if match:
-            return int(match.group(1))
-        return 0
-
-    hours = sum([parse_time(worktime[2], 'h') for worktime in worktimes])
-    minutes = sum([parse_time(worktime[2], 'm') for worktime in worktimes])
-
-    more_hours = minutes // 60
-    if more_hours > 0:
-        hours += more_hours
-        minutes = minutes % 60
-
-    return hours, minutes
+def get_command(parsed_args):
+    parsed_args = vars(parsed_args)
+    command = [arg for arg, value in parsed_args.items() if value][0]
+    return command, parsed_args[command]
 
 
 def main():
     parser = argparse_parser_setup()
     args = parser.parse_args()
 
-    if not len(sys.argv) > 1:
+    if is_not_any_args_given():
         parser.print_help()
         exit()
 
     db.check_or_create_db()
 
-    if args.time:
-        db.insert_worktime(args.time)
+    command, command_args = get_command(args)
+    dispath(command, command_args)
 
-    if args.list:
-        worktimes = db.get_all_worktimes()
-        printer.pretty_print_worktimes(worktimes)
 
-    if args.remove_id:
-        db.remove_worktime(args.remove_id)
+def is_not_any_args_given():
+    return not len(sys.argv) > 1
 
-    if args.month:
-        month = datetime.date.today().month
-        month_worktimes = db.filter_by_month(month)
-        month_sum = calc_time_sum(month_worktimes)
-        printer.pretty_print_worktimes(month_worktimes)
-        printer.print_month_sum(month_sum)
+
+def dispath(command, args):
+    command_to_handler = {
+        'time': add_worktime,
+        'list': list_all,
+        'month': list_month,
+        'remove_id': remove,
+    }
+    command_to_handler[command](args)
+
+
+def add_worktime(worktime):
+    db.insert_worktime(worktime)
+
+
+def list_all(*args):
+    worktimes = db.get_all_worktimes()
+    printer.pretty_print_worktimes(worktimes)
+
+
+def list_month(month):
+    month = datetime.date.today().month
+    month_worktimes = db.filter_by_month(month)
+    month_sum = utils.calc_time_sum(month_worktimes)
+    printer.pretty_print_worktimes(month_worktimes)
+    printer.print_month_sum(month_sum)
+
+
+def remove(id_):
+    db.remove_worktime(id_)
 
 
 if __name__ == '__main__':
