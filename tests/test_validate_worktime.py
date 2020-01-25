@@ -1,6 +1,6 @@
 import pytest
 
-from validator import validate_worktime
+from logh.validator import validate_worktime
 
 
 @pytest.mark.parametrize('worktime, expected', [

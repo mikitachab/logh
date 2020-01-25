@@ -3,17 +3,7 @@ import datetime
 import sqlite3
 import os
 
-from constants import DB_SQLITE_FILENAME
-
-
-@contextlib.contextmanager
-def dbconn():
-    try:
-        conn = sqlite3.connect(DB_SQLITE_FILENAME)
-        with conn:
-            yield conn
-    finally:
-        conn.close()
+from logh.constants import DB_SQLITE_FILENAME
 
 
 def check_db_exists():
@@ -21,16 +11,29 @@ def check_db_exists():
 
 
 def create_db():
-    with dbconn() as conn:
+    conn = sqlite3.connect(DB_SQLITE_FILENAME)
+    with conn:
         cur = conn.cursor()
-        with open('create_hours_db.sql') as create_db_script:
+        with open('logh/db/create_hours_db.sql') as create_db_script:
+            print('creating tables')
             cur.execute(create_db_script.read())
+    return conn
 
 
-def check_or_create_db():
+def get_or_create_db_connection():
     if check_db_exists():
-        return
-    create_db()
+        return sqlite3.connect(DB_SQLITE_FILENAME)
+    return create_db()
+
+
+@contextlib.contextmanager
+def dbconn():
+    conn = get_or_create_db_connection()
+    try:
+        with conn:
+            yield conn
+    finally:
+        conn.close()
 
 
 def insert_worktime(worktime):

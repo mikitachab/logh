@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 import argparse
-import datetime
 import sys
 
-import db
-import printer
-import utils
+import logh
 
 __version__ = '0.1.0'
 
@@ -42,6 +39,10 @@ def get_command(parsed_args):
     return command, parsed_args[command]
 
 
+def is_not_any_args_given():
+    return not len(sys.argv) > 1
+
+
 def main():
     parser = argparse_parser_setup()
     args = parser.parse_args()
@@ -50,45 +51,8 @@ def main():
         parser.print_help()
         exit()
 
-    db.check_or_create_db()
-
     command, command_args = get_command(args)
-    dispath(command, command_args)
-
-
-def is_not_any_args_given():
-    return not len(sys.argv) > 1
-
-
-def dispath(command, args):
-    command_to_handler = {
-        'time': add_worktime,
-        'list': list_all,
-        'month': list_month,
-        'remove_id': remove,
-    }
-    command_to_handler[command](args)
-
-
-def add_worktime(worktime):
-    db.insert_worktime(worktime)
-
-
-def list_all(*args):
-    worktimes = db.get_all_worktimes()
-    printer.pretty_print_worktimes(worktimes)
-
-
-def list_month(month):
-    month = datetime.date.today().month
-    month_worktimes = db.filter_by_month(month)
-    month_sum = utils.calc_time_sum(month_worktimes)
-    printer.pretty_print_worktimes(month_worktimes)
-    printer.print_month_sum(month_sum)
-
-
-def remove(id_):
-    db.remove_worktime(id_)
+    logh.dispath(command, command_args)
 
 
 if __name__ == '__main__':

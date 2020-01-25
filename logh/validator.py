@@ -1,6 +1,6 @@
 import re
 
-from constants import WORKTIME_RE
+from logh.constants import WORKTIME_RE
 
 
 def validate_worktime(worktime):
