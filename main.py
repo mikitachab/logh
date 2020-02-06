@@ -52,7 +52,7 @@ def main():
         exit()
 
     command, command_args = get_command(args)
-    logh.dispath(command, command_args)
+    logh.dispatch(command, command_args)
 
 
 if __name__ == '__main__':
