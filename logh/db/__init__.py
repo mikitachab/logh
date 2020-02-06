@@ -48,7 +48,7 @@ def insert_worktime(worktime):
 def get_all_worktimes():
     with dbconn() as conn:
         cursor = conn.cursor()
-        query = 'select id, workday, worktime from worktimes;'
+        query = 'select id, workday, worktime from worktimes order by workday;'
         result = cursor.execute(query)
         return result.fetchall()
 
@@ -75,6 +75,6 @@ def filter_by_month(month):
     month = str(month).zfill(2)
     with dbconn() as conn:
         cursor = conn.cursor()
-        query = 'select id, workday, worktime from worktimes where strftime("%m", workday) = ?;'
+        query = 'select id, workday, worktime from worktimes where strftime("%m", workday) = ? order by workday;'
         result = cursor.execute(query, (month,))
         return result.fetchall()
