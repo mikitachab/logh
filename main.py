@@ -33,26 +33,19 @@ def argparse_parser_setup():
     return parser
 
 
-def get_command(parsed_args):
-    parsed_args = vars(parsed_args)
-    command = [arg for arg, value in parsed_args.items() if value][0]
-    return command, parsed_args[command]
-
-
-def is_not_any_args_given():
-    return not len(sys.argv) > 1
+def is_any_args_given():
+    return len(sys.argv) > 1
 
 
 def main():
     parser = argparse_parser_setup()
     args = parser.parse_args()
 
-    if is_not_any_args_given():
+    if not is_any_args_given():
         parser.print_help()
         exit()
 
-    command, command_args = get_command(args)
-    logh.dispatch(command, command_args)
+    logh.dispatch(args)
 
 
 if __name__ == '__main__':
